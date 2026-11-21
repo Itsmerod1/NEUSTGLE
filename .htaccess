@@ -1,0 +1,11 @@
+# NEUSTGLE - Apache protection rules
+Options -Indexes
+
+# Never let anyone download secrets or source folders
+<FilesMatch "^\.env">
+    Require all denied
+</FilesMatch>
+RedirectMatch 403 (?i)/(config|database|react)(/|$)
+
+# Make the chat the home page
+DirectoryIndex index.php
