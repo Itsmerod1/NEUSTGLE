@@ -34,7 +34,13 @@ export const sendMessage = (roomId, message) => post('send_message.php', { room_
 export const getMessages = (roomId, after = null) => post('get_messages.php', { room_id: roomId, after });
 export const reportStranger = (roomId, reason, description) =>
   post('report_stranger.php', { room_id: roomId, reason, description });
-
+export const getOnlineCount = () => post('get_online_count.php');
+export const reactToMessage = (roomId, messageId, reaction) =>
+  post('react_message.php', {
+    room_id: roomId,
+    message_id: messageId,
+    reaction,
+  });
 // Used when the tab is closing: tells the server to end the chat.
 export function stopChatBeacon() {
   try {

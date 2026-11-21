@@ -1,8 +1,15 @@
+
 import { useEffect, useRef } from 'react';
 
 function formatTime(iso) {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+  return Number.isNaN(d.getTime())
+    ? ''
+    : d.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+      });
 }
 
 const EMPTY_TEXT = {
@@ -13,13 +20,22 @@ const EMPTY_TEXT = {
   disconnected: '',
 };
 
-export default function ChatMessages({ messages, strangerTyping, status }) {
+const REACTIONS = ['❤️', '😂', '😮', '😢', '👍', '🔥'];
+
+export default function ChatMessages({
+  messages,
+  strangerTyping,
+  status,
+  onReact,
+}) {
   const boxRef = useRef(null);
 
-  // Always scroll to the newest message
   useEffect(() => {
     const box = boxRef.current;
-    if (box) box.scrollTop = box.scrollHeight;
+
+    if (box) {
+      box.scrollTop = box.scrollHeight;
+    }
   }, [messages, strangerTyping]);
 
   return (
@@ -37,10 +53,59 @@ export default function ChatMessages({ messages, strangerTyping, status }) {
             <span>{m.text}</span>
           </div>
         ) : (
-          <div className={`msg ${m.mine ? 'mine' : 'theirs'}`} key={m.id}>
+          <div
+            className={`msg ${m.mine ? 'mine' : 'theirs'}`}
+            key={m.id}
+          >
             <div className="bubble">
               <div className="bubble-text">{m.text}</div>
-              <div className="bubble-time">{formatTime(m.createdAt)}</div>
+
+              <div className="bubble-time">
+                {formatTime(m.createdAt)}
+              </div>
+            </div>
+
+            {/* Existing reactions */}
+            {m.reactions?.length > 0 && (
+              <div className="message-reaction-summary">
+                {m.reactions.map((r) => (
+                  <button
+                    key={r.reaction}
+                    type="button"
+                    className={`reaction-chip ${r.mine ? 'my-reaction' : ''}`}
+                    onClick={() =>
+                      onReact?.(
+                        m.id,
+                        r.mine ? null : r.reaction
+                      )
+                    }
+                    title={
+                      r.mine
+                        ? 'Remove your reaction'
+                        : 'React with ' + r.reaction
+                    }
+                  >
+                    <span>{r.reaction}</span>
+                    <span>{r.count}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Reaction picker */}
+            <div className="message-reaction-picker">
+              {REACTIONS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  className="reaction-option"
+                  onClick={() => onReact?.(m.id, emoji)}
+                  aria-label={`React with ${emoji}`}
+                  title={`React with ${emoji}`}
+                >
+                  {emoji}
+                </button>
+              ))}
             </div>
           </div>
         )
@@ -49,7 +114,9 @@ export default function ChatMessages({ messages, strangerTyping, status }) {
       {strangerTyping && (
         <div className="msg theirs">
           <div className="bubble typing" aria-label="Stranger is typing">
-            <span /><span /><span />
+            <span />
+            <span />
+            <span />
           </div>
         </div>
       )}
