@@ -160,8 +160,12 @@ function json_error(string $message, int $status = 400): void
 
 function require_post(): void
 {
-    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-        json_error('Method not allowed.', 405);
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN';
+
+    error_log('NEUSTGLE REQUEST METHOD: ' . $method);
+
+    if (strtoupper($method) !== 'POST') {
+        json_error('Method not allowed. Received: ' . $method, 405);
     }
 }
 
