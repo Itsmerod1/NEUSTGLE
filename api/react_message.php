@@ -1,4 +1,3 @@
-
 <?php
 /**
  * POST api/react_message.php
